@@ -21,7 +21,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@master
+      uses: actions/checkout@v4
     - name: Initialization environment
       env:
         DEBIAN_FRONTEND: noninteractive
@@ -36,12 +36,6 @@ jobs:
         cd /opt/rt-n56u/toolchain-mipsel
         sh dl_toolchain.sh
         mkdir -p /opt/images/
-    - name: Install Go
-      run: |
-        wget https://go.dev/dl/go1.15.2.linux-amd64.tar.gz
-        tar -xzf go1.15.2.linux-amd64.tar.gz
-        sudo mv go /usr/local/
-        echo "/usr/local/go/bin" >> $GITHUB_PATH
     - name: Fix Go download
       run: |
         mkdir -p /opt/rt-n56u/trunk/tools/go
@@ -52,8 +46,6 @@ jobs:
       env:
         TNAME: RM2100
       run: |
-        export PATH=/usr/local/go/bin:$PATH
-        go version
         cd /opt/rt-n56u/trunk
         if [ ! -f configs/templates/$TNAME.config ] ; then
         echo "configs/templates/$TNAME.config not found "
@@ -114,11 +106,18 @@ jobs:
         #echo "自定义项=y" >> .config
         #########################################################################################
         sudo ./clear_tree
-        sudo ./build_firmware_modify $TNAME 0
+        #sudo ./build_firmware_modify $TNAME 0
+        sudo ./build_firmware_modify $TNAME 0 2>&1 | tee build.log
         sudo mv -f images/*.trx /opt/images/
     - name : Upload packages
-      uses: actions/upload-artifact@master
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: Padavan-packages
         path: /opt/images
+    - name: Upload build log
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: build-log
+        path: /opt/rt-n56u/trunk/build.log
