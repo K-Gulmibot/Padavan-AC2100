@@ -46,6 +46,14 @@ jobs:
         exit 1
         fi
         cp -f configs/templates/$TNAME.config .config
+
+        # --- 新增的硬跳过逻辑 ---
+        # 创建一个空的目录，让 Makefile 以为 Go 已经解压好了
+        mkdir -p /opt/rt-n56u/trunk/tools/go/go
+        # 创建一个假的压缩包，防止它再次运行 curl 下载
+        touch /opt/rt-n56u/trunk/tools/go/go1.15.2.linux-amd64.tar.gz
+        # -----------------------
+        
         sed -i 's/CONFIG_FIRMWARE_INCLUDE_OPENSSL_EXE=n/CONFIG_FIRMWARE_INCLUDE_OPENSSL_EXE=y/g' .config
         ################################################################################################
         #因不同型号配置功能不一样，所以先把配置项删除，如果你自己要添加其他的，也要写上删除这一条，切记！！！
